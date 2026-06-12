@@ -1,0 +1,7 @@
+bin/
+.git/
+.github/
+.DS_Store
+.env
+*.log
+README.md

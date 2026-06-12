@@ -1,0 +1,49 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+jobs:
+  build-and-test:
+    runs-on: ubuntu-latest
+
+    # Spin up a real Postgres so the store integration tests actually run in CI.
+    services:
+      postgres:
+        image: postgres:16-alpine
+        env:
+          POSTGRES_USER: conveyor
+          POSTGRES_PASSWORD: conveyor
+          POSTGRES_DB: conveyor
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd "pg_isready -U conveyor"
+          --health-interval 5s
+          --health-timeout 5s
+          --health-retries 10
+
+    env:
+      CONVEYOR_TEST_DB_DSN: postgres://conveyor:conveyor@localhost:5432/conveyor?sslmode=disable
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-go@v5
+        with:
+          go-version-file: go.mod
+          cache: true
+
+      - name: Verify formatting
+        run: test -z "$(gofmt -l .)" || (echo "Run 'go fmt ./...'"; gofmt -l .; exit 1)
+
+      - name: Vet
+        run: go vet ./...
+
+      - name: Build
+        run: go build ./...
+
+      - name: Test (race detector)
+        run: go test -race -count=1 ./...

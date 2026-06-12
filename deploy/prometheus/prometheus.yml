@@ -1,0 +1,27 @@
+# Prometheus scrape config.
+# The api and worker run on your host and expose /metrics; Prometheus (in Docker)
+# reaches them through host.docker.internal.
+
+global:
+  scrape_interval: 5s
+  evaluation_interval: 5s
+
+scrape_configs:
+  # Two targets per job so metrics are scraped whether the app runs on your host
+  # (`make api`) or in a container (`docker compose --profile app up`). The
+  # inactive target simply shows as "down" — that's expected.
+  - job_name: conveyor-api
+    static_configs:
+      - targets: ["host.docker.internal:8080", "api:8080"]
+        labels:
+          service: api
+
+  - job_name: conveyor-worker
+    static_configs:
+      - targets: ["host.docker.internal:8081", "worker:8081"]
+        labels:
+          service: worker
+
+  - job_name: prometheus
+    static_configs:
+      - targets: ["localhost:9090"]

@@ -1,0 +1,20 @@
+# Binaries
+/bin/
+*.exe
+*.out
+
+# Env / secrets
+.env
+
+# Go
+*.test
+*.prof
+coverage.out
+coverage.html
+
+# OS
+.DS_Store
+
+# IDE
+.idea/
+.vscode/

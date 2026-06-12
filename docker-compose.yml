@@ -1,0 +1,157 @@
+# Conveyor — full local stack.
+# Run `docker compose up -d` to start Kafka, Postgres, and the observability tools.
+# The Go services (api/worker) run on your host during development and connect to
+# Kafka on localhost:9092 and Postgres on localhost:5432.
+
+services:
+  # ---------------------------------------------------------------------------
+  # Kafka — the durable, partitioned log that holds every job message.
+  # Single-node KRaft mode (no ZooKeeper). Two listeners:
+  #   - localhost:9092  -> for apps running on your host (dev)
+  #   - kafka:29092     -> for other containers on the compose network (prod)
+  # ---------------------------------------------------------------------------
+  kafka:
+    image: apache/kafka:3.9.0
+    container_name: conveyor-kafka
+    ports:
+      - "9092:9092"
+    environment:
+      KAFKA_NODE_ID: 1
+      KAFKA_PROCESS_ROLES: broker,controller
+      KAFKA_CONTROLLER_QUORUM_VOTERS: 1@kafka:9093
+      KAFKA_LISTENERS: CONTROLLER://:9093,HOST://:9092,DOCKER://:29092
+      KAFKA_ADVERTISED_LISTENERS: HOST://localhost:9092,DOCKER://kafka:29092
+      KAFKA_LISTENER_SECURITY_PROTOCOL_MAP: CONTROLLER:PLAINTEXT,HOST:PLAINTEXT,DOCKER:PLAINTEXT
+      KAFKA_CONTROLLER_LISTENER_NAMES: CONTROLLER
+      KAFKA_INTER_BROKER_LISTENER_NAME: DOCKER
+      KAFKA_OFFSETS_TOPIC_REPLICATION_FACTOR: 1
+      KAFKA_TRANSACTION_STATE_LOG_REPLICATION_FACTOR: 1
+      KAFKA_TRANSACTION_STATE_LOG_MIN_ISR: 1
+      KAFKA_GROUP_INITIAL_REBALANCE_DELAY_MS: 0
+      KAFKA_AUTO_CREATE_TOPICS_ENABLE: "false" # we create topics explicitly from code
+      KAFKA_NUM_PARTITIONS: 6
+    healthcheck:
+      test: ["CMD-SHELL", "/opt/kafka/bin/kafka-topics.sh --bootstrap-server localhost:9092 --list || exit 1"]
+      interval: 10s
+      timeout: 10s
+      retries: 10
+      start_period: 20s
+
+  # ---------------------------------------------------------------------------
+  # Postgres — stores the authoritative state of every job (the "read model").
+  # Kafka moves work around; Postgres lets us answer "what's the status of job X?"
+  # ---------------------------------------------------------------------------
+  postgres:
+    image: postgres:16-alpine
+    container_name: conveyor-postgres
+    ports:
+      - "5432:5432"
+    environment:
+      POSTGRES_USER: conveyor
+      POSTGRES_PASSWORD: conveyor
+      POSTGRES_DB: conveyor
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U conveyor -d conveyor"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+
+  # ---------------------------------------------------------------------------
+  # Kafka-UI — a web dashboard to inspect topics, partitions, and messages.
+  # Open http://localhost:8085 to watch jobs flow through in real time.
+  # ---------------------------------------------------------------------------
+  kafka-ui:
+    image: provectuslabs/kafka-ui:latest
+    container_name: conveyor-kafka-ui
+    ports:
+      - "8085:8080"
+    environment:
+      KAFKA_CLUSTERS_0_NAME: conveyor
+      KAFKA_CLUSTERS_0_BOOTSTRAPSERVERS: kafka:29092
+      DYNAMIC_CONFIG_ENABLED: "true"
+    depends_on:
+      kafka:
+        condition: service_healthy
+
+  # ---------------------------------------------------------------------------
+  # Prometheus — scrapes /metrics from the api and worker every few seconds and
+  # stores the time-series numbers. Reaches host services via host.docker.internal.
+  # Open http://localhost:9090
+  # ---------------------------------------------------------------------------
+  prometheus:
+    image: prom/prometheus:v2.54.1
+    container_name: conveyor-prometheus
+    ports:
+      - "9090:9090"
+    volumes:
+      - ./deploy/prometheus/prometheus.yml:/etc/prometheus/prometheus.yml:ro
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
+
+  # ---------------------------------------------------------------------------
+  # Grafana — dashboards built on top of Prometheus. Auto-provisioned with a
+  # Conveyor dashboard. Open http://localhost:3300 (login: admin / admin).
+  # (Host port 3300 to avoid clashing with anything already on 3000.)
+  # ---------------------------------------------------------------------------
+  grafana:
+    image: grafana/grafana:11.2.0
+    container_name: conveyor-grafana
+    ports:
+      - "3300:3000"
+    environment:
+      GF_SECURITY_ADMIN_USER: admin
+      GF_SECURITY_ADMIN_PASSWORD: admin
+      GF_USERS_ALLOW_SIGN_UP: "false"
+    volumes:
+      - ./deploy/grafana/provisioning:/etc/grafana/provisioning:ro
+      - ./deploy/grafana/dashboards:/var/lib/grafana/dashboards:ro
+    depends_on:
+      - prometheus
+
+  # ---------------------------------------------------------------------------
+  # OPTIONAL: run the Go services in containers too (instead of on your host).
+  # Enable with:  docker compose --profile app up -d --build
+  # In this mode they talk to Kafka/Postgres over the internal compose network.
+  # (Use either this OR the host-run `make api` / `make worker`, not both — they
+  #  share ports 8080/8081.)
+  # ---------------------------------------------------------------------------
+  api:
+    build:
+      context: .
+      args:
+        CMD: api
+    container_name: conveyor-api
+    profiles: ["app"]
+    ports:
+      - "8080:8080"
+    environment:
+      CONVEYOR_KAFKA_BROKERS: kafka:29092
+      CONVEYOR_DB_DSN: postgres://conveyor:conveyor@postgres:5432/conveyor?sslmode=disable
+    depends_on:
+      kafka:
+        condition: service_healthy
+      postgres:
+        condition: service_healthy
+
+  worker:
+    build:
+      context: .
+      args:
+        CMD: worker
+    container_name: conveyor-worker
+    profiles: ["app"]
+    ports:
+      - "8081:8081"
+    environment:
+      CONVEYOR_KAFKA_BROKERS: kafka:29092
+      CONVEYOR_DB_DSN: postgres://conveyor:conveyor@postgres:5432/conveyor?sslmode=disable
+    depends_on:
+      kafka:
+        condition: service_healthy
+      postgres:
+        condition: service_healthy
+
+volumes:
+  pgdata:
