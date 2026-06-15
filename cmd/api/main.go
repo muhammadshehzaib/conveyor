@@ -11,11 +11,11 @@ import (
 	"syscall"
 	"time"
 
-	"github.com/aryan3650/conveyor/internal/api"
-	"github.com/aryan3650/conveyor/internal/config"
-	"github.com/aryan3650/conveyor/internal/observability"
-	"github.com/aryan3650/conveyor/internal/queue"
-	"github.com/aryan3650/conveyor/internal/store"
+	"github.com/muhammadshehzaib/conveyor/internal/api"
+	"github.com/muhammadshehzaib/conveyor/internal/config"
+	"github.com/muhammadshehzaib/conveyor/internal/observability"
+	"github.com/muhammadshehzaib/conveyor/internal/queue"
+	"github.com/muhammadshehzaib/conveyor/internal/store"
 )
 
 func main() {

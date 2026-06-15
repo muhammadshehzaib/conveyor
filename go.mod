@@ -1,4 +1,4 @@
-module github.com/aryan3650/conveyor
+module github.com/muhammadshehzaib/conveyor
 
 go 1.26.2
 

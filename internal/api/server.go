@@ -11,8 +11,8 @@ import (
 
 	"github.com/prometheus/client_golang/prometheus/promhttp"
 
-	"github.com/aryan3650/conveyor/internal/job"
-	"github.com/aryan3650/conveyor/internal/observability"
+	"github.com/muhammadshehzaib/conveyor/internal/job"
+	"github.com/muhammadshehzaib/conveyor/internal/observability"
 )
 
 // JobStore is the slice of persistence the API needs. Depending on an interface

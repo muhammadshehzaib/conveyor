@@ -11,9 +11,9 @@ import (
 	"sync"
 	"testing"
 
-	"github.com/aryan3650/conveyor/internal/job"
-	"github.com/aryan3650/conveyor/internal/observability"
-	"github.com/aryan3650/conveyor/internal/store"
+	"github.com/muhammadshehzaib/conveyor/internal/job"
+	"github.com/muhammadshehzaib/conveyor/internal/observability"
+	"github.com/muhammadshehzaib/conveyor/internal/store"
 )
 
 // Build the Prometheus collectors exactly once for the whole test binary

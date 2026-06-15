@@ -12,8 +12,8 @@ import (
 	"github.com/jackc/pgx/v5"
 	"github.com/jackc/pgx/v5/pgxpool"
 
-	"github.com/aryan3650/conveyor/internal/job"
-	"github.com/aryan3650/conveyor/migrations"
+	"github.com/muhammadshehzaib/conveyor/internal/job"
+	"github.com/muhammadshehzaib/conveyor/migrations"
 )
 
 // ErrNotFound is returned by Get when no job with the given id exists.

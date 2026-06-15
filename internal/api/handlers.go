@@ -10,8 +10,8 @@ import (
 
 	"github.com/google/uuid"
 
-	"github.com/aryan3650/conveyor/internal/job"
-	"github.com/aryan3650/conveyor/internal/store"
+	"github.com/muhammadshehzaib/conveyor/internal/job"
+	"github.com/muhammadshehzaib/conveyor/internal/store"
 )
 
 // enqueueRequest is the POST /v1/jobs body.

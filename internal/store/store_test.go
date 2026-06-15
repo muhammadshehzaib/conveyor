@@ -8,7 +8,7 @@ import (
 
 	"github.com/google/uuid"
 
-	"github.com/aryan3650/conveyor/internal/job"
+	"github.com/muhammadshehzaib/conveyor/internal/job"
 )
 
 // testStore connects to a Postgres instance for integration tests. It uses

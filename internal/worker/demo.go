@@ -6,7 +6,7 @@ import (
 	"fmt"
 	"time"
 
-	"github.com/aryan3650/conveyor/internal/job"
+	"github.com/muhammadshehzaib/conveyor/internal/job"
 )
 
 // demoPayload lets a client steer the demo handler's behavior from the job

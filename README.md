@@ -1,6 +1,6 @@
 # Conveyor — a distributed job queue on Go + Kafka
 
-[![CI](https://github.com/aryan3650/conveyor/actions/workflows/ci.yml/badge.svg)](https://github.com/aryan3650/conveyor/actions/workflows/ci.yml)
+[![CI](https://github.com/muhammadshehzaib/conveyor/actions/workflows/ci.yml/badge.svg)](https://github.com/muhammadshehzaib/conveyor/actions/workflows/ci.yml)
 [![Go](https://img.shields.io/badge/Go-1.26-00ADD8?logo=go)](https://go.dev)
 [![Kafka](https://img.shields.io/badge/Apache_Kafka-KRaft-231F20?logo=apachekafka)](https://kafka.apache.org)
 

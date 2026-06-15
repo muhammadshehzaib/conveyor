@@ -12,7 +12,7 @@ import (
 
 	"github.com/segmentio/kafka-go"
 
-	"github.com/aryan3650/conveyor/internal/job"
+	"github.com/muhammadshehzaib/conveyor/internal/job"
 )
 
 // Producer publishes job messages to Kafka. A single Producer is safe for

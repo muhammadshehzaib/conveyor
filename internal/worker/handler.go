@@ -5,7 +5,7 @@ package worker
 import (
 	"context"
 
-	"github.com/aryan3650/conveyor/internal/job"
+	"github.com/muhammadshehzaib/conveyor/internal/job"
 )
 
 // Handler executes a single job. Returning a non-nil error triggers the retry /

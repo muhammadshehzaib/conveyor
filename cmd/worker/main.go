@@ -13,11 +13,11 @@ import (
 
 	"github.com/prometheus/client_golang/prometheus/promhttp"
 
-	"github.com/aryan3650/conveyor/internal/config"
-	"github.com/aryan3650/conveyor/internal/observability"
-	"github.com/aryan3650/conveyor/internal/queue"
-	"github.com/aryan3650/conveyor/internal/store"
-	"github.com/aryan3650/conveyor/internal/worker"
+	"github.com/muhammadshehzaib/conveyor/internal/config"
+	"github.com/muhammadshehzaib/conveyor/internal/observability"
+	"github.com/muhammadshehzaib/conveyor/internal/queue"
+	"github.com/muhammadshehzaib/conveyor/internal/store"
+	"github.com/muhammadshehzaib/conveyor/internal/worker"
 )
 
 func main() {
