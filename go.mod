@@ -2,6 +2,8 @@ module github.com/muhammadshehzaib/conveyor
 
 go 1.26.2
 
+// Author: Muhammad Shehzaib
+
 require (
 	github.com/google/uuid v1.6.0
 	github.com/jackc/pgx/v5 v5.10.0
